@@ -1,0 +1,1671 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚡ CodeQuest - Belajar Coding Sambil Main</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: #0a0e17; color: #e6edf3; min-height: 100vh;
+    padding: 20px 12px 60px;
+    background-image:
+      radial-gradient(circle at 15% 5%, rgba(88,166,255,.14), transparent 40%),
+      radial-gradient(circle at 85% 90%, rgba(188,140,255,.12), transparent 45%);
+  }
+  .app { max-width: 960px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+
+  header { text-align: center; padding: 8px 0 4px; }
+  header h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); color: #58a6ff; letter-spacing: -0.5px; }
+  header h1 span { color: #d2a8ff; }
+  header p { color: #8b949e; font-size: 0.9rem; margin-top: 4px; }
+  .navbar {
+    display: flex; gap: 6px; padding: 6px; background: rgba(22,27,34,.9);
+    border:1px solid #30363d; border-radius: 12px; overflow-x: auto;
+    position: sticky; top: 8px; z-index: 50; backdrop-filter: blur(8px);
+  }
+  .nav-btn {
+    padding: 9px 16px; border-radius: 8px; border:none; background: transparent;
+    color: #8b949e; cursor:pointer; font-family: inherit; font-weight: 600;
+    font-size: .85rem; white-space: nowrap; transition: all .15s;
+  }
+  .nav-btn:hover { color:#e6edf3; background: rgba(88,166,255,.08); }
+  .nav-btn.active { background: rgba(88,166,255,.15); color:#58a6ff; }
+  .nav-btn .badge {
+    background:#238636; color:#fff; font-size:.65rem; padding:1px 6px;
+    border-radius: 999px; margin-left:5px; font-weight:700;
+  }
+
+  .card {
+    background: rgba(22,27,34,0.9); border: 1px solid #30363d;
+    border-radius: 14px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,.3);
+  }
+  .card h2 { font-size: 1.1rem; margin-bottom: 14px; color: #e6edf3; }
+  .hidden { display: none !important; }
+  .page { display: none; flex-direction: column; gap: 18px; }
+  .page.active { display: flex; animation: fadeIn .25s; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+
+  .row { display: grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap: 12px; margin-bottom: 12px; }
+  .field label { display:block; font-size: 0.78rem; color:#8b949e; margin-bottom: 4px; text-transform: uppercase; letter-spacing: .5px; }
+  .field input, .field select {
+    width: 100%; padding: 10px 12px; background: #0d1117; border: 1px solid #30363d;
+    border-radius: 8px; color: #e6edf3; font-size: 0.9rem; outline: none;
+    transition: border-color .15s; font-family: inherit;
+  }
+  .field input:focus { border-color: #58a6ff; }
+  .btn {
+    padding: 10px 18px; border-radius: 8px; border: 1px solid transparent;
+    font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all .15s; font-family: inherit;
+  }
+  .btn.primary { background: #238636; color: #fff; }
+  .btn.primary:hover { background: #2ea043; }
+  .btn.ghost { background: transparent; border-color:#30363d; color:#8b949e; }
+  .btn.ghost:hover { border-color:#58a6ff; color:#58a6ff; }
+  .btn.warn { background: #9e6a03; color:#fff; }
+  .btn.danger { background: #da3633; color:#fff; }
+  .btn.danger:hover { background: #f85149; }
+  .btn.sm { padding: 6px 12px; font-size: .8rem; }
+
+  .profile-header {
+    display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+    padding-bottom: 18px; margin-bottom: 18px; border-bottom: 1px solid #21262d;
+  }
+  .avatar-wrap { position: relative; flex-shrink: 0; }
+  .avatar {
+    width: 110px; height: 110px; border-radius: 50%;
+    background: linear-gradient(135deg, #58a6ff, #d2a8ff);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 3rem; font-weight: 700; color: #0a0e17;
+    overflow: hidden; border: 3px solid #30363d;
+    box-shadow: 0 0 24px rgba(88,166,255,.35);
+  }
+  .avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .avatar-edit {
+    position: absolute; bottom: 0; right: 0; width: 34px; height: 34px;
+    border-radius: 50%; background: #238636; color: #fff; border: 2px solid #0a0e17;
+    cursor: pointer; font-size: 1rem; display: flex; align-items: center;
+    justify-content: center; transition: all .15s;
+  }
+  .avatar-edit:hover { background: #2ea043; transform: scale(1.08); }
+  .profile-meta { flex: 1; min-width: 200px; }
+  .profile-meta h3 { font-size: 1.3rem; color:#e6edf3; margin-bottom: 4px; word-break: break-word; }
+  .profile-meta .nim { color: #58a6ff; font-family:'Consolas', monospace; font-size:.9rem; margin-bottom: 4px; }
+  .profile-meta .jurusan { color:#8b949e; font-size:.85rem; }
+  .profile-meta .level-badge {
+    display: inline-block; margin-top: 8px; padding: 4px 12px;
+    background: linear-gradient(90deg,#58a6ff,#d2a8ff); color:#0a0e17;
+    border-radius: 999px; font-weight: 700; font-size: .8rem;
+  }
+
+  .profile-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 10px; margin-bottom: 14px; }
+  .info-item { background: #0d1117; padding: 10px 12px; border-radius: 8px; border:1px solid #21262d; }
+  .info-item .lbl { font-size: .7rem; color:#8b949e; text-transform: uppercase; letter-spacing:.5px; }
+  .info-item .val { font-size: 1rem; font-weight: 600; margin-top: 2px; word-break: break-word; }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px,1fr)); gap: 10px; margin-bottom: 8px; }
+  .stat-box { background: linear-gradient(135deg,#161b22,#0d1117); padding: 12px; border-radius: 10px; border:1px solid #30363d; text-align: center; }
+  .stat-box .num { font-size: 1.4rem; font-weight: 700; color:#58a6ff; }
+  .stat-box .lbl { font-size: .68rem; color: #8b949e; text-transform: uppercase; letter-spacing: .5px; margin-top: 2px; }
+  .stat-box.green .num { color: #7ee787; }
+  .stat-box.purple .num { color: #d2a8ff; }
+  .stat-box.orange .num { color: #ffa657; }
+  .stat-box.pink .num { color: #ff7b72; }
+
+  .xp-bar { height: 8px; background:#0d1117; border-radius: 999px; overflow: hidden; margin: 6px 0 6px; border:1px solid #21262d; }
+  .xp-fill { height: 100%; background: linear-gradient(90deg,#58a6ff,#d2a8ff); transition: width .4s ease; }
+
+  .mode-stats { display: grid; grid-template-columns: repeat(auto-fit,minmax(160px,1fr)); gap: 8px; }
+  .mode-stat { background:#0d1117; padding: 8px 10px; border-radius: 8px; font-size: .8rem; border:1px solid #21262d; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .mode-stat .name { color:#c9d1d9; }
+  .mode-stat .val { color:#7ee787; font-weight: 600; font-size: .75rem; }
+
+  .history-filter { display:flex; gap:6px; flex-wrap:wrap; margin-bottom: 14px; }
+  .chip {
+    padding: 6px 12px; border-radius: 999px; border:1px solid #30363d;
+    background:#0d1117; color:#8b949e; cursor:pointer; font-size:.78rem;
+    font-family: inherit; font-weight: 600; transition: all .15s;
+  }
+  .chip:hover { color:#e6edf3; border-color:#58a6ff; }
+  .chip.active { background: rgba(88,166,255,.15); border-color:#58a6ff; color:#58a6ff; }
+
+  .history-list { display: flex; flex-direction: column; gap: 8px; max-height: 520px; overflow-y: auto; padding-right: 4px; }
+  .history-item {
+    background: #0d1117; border:1px solid #21262d; border-radius: 10px;
+    padding: 12px 14px; display: flex; gap: 12px; align-items: flex-start;
+    transition: all .15s;
+  }
+  .history-item:hover { border-color:#30363d; background: #161b22; }
+  .history-item.correct { border-left: 3px solid #238636; }
+  .history-item.wrong { border-left: 3px solid #f85149; }
+  .history-icon { font-size: 1.3rem; flex-shrink:0; line-height:1; }
+  .history-body { flex:1; min-width: 0; }
+  .history-mode { font-size: .7rem; color:#8b949e; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 3px; }
+  .history-q { font-size: .85rem; color:#c9d1d9; line-height:1.4; word-break: break-word; }
+  .history-meta { font-size: .7rem; color:#484f58; margin-top: 6px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .history-xp { color:#7ee787; font-weight: 600; }
+
+  .empty-state { text-align: center; padding: 40px 20px; color:#8b949e; font-size:.9rem; }
+  .empty-state .icon { font-size: 3rem; margin-bottom: 12px; opacity:.5; }
+  .history-summary { display: grid; grid-template-columns: repeat(auto-fit,minmax(120px,1fr)); gap: 10px; margin-bottom: 16px; }
+  .history-summary .stat-box .num { font-size: 1.2rem; }
+
+  .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 12px; }
+  .mode-card {
+    background: #0d1117; border: 1px solid #30363d; border-radius: 12px;
+    padding: 14px; cursor: pointer; transition: all .15s; text-align: left;
+    color: inherit; font-family: inherit;
+  }
+  .mode-card:hover { border-color: #58a6ff; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(88,166,255,.15); }
+  .mode-card .icon { font-size: 1.6rem; }
+  .mode-card .name { font-weight: 600; margin-top: 6px; font-size: .95rem; }
+  .mode-card .desc { font-size: .78rem; color:#8b949e; margin-top: 4px; line-height: 1.4; }
+
+  .game-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  .game-head h2 { font-size: 1.1rem; margin: 0; }
+
+  .pool, .answer { display: flex; flex-direction: column; gap: 6px; min-height: 44px; padding: 8px; border-radius: 10px; background: #0d1117; border: 1px dashed #30363d; }
+  .answer { border-style: solid; border-color:#238636; background: rgba(35,134,54,.06); }
+  .code-line, .token {
+    background: #161b22; border: 1px solid #30363d; border-radius: 6px;
+    padding: 8px 12px; font-family: 'Consolas','Courier New',monospace;
+    font-size: .85rem; cursor: pointer; transition: all .12s; user-select: none;
+    color: #e6edf3; word-break: break-all;
+  }
+  .code-line:hover, .token:hover { border-color:#58a6ff; background: #1c2230; }
+
+  .choices { display: grid; gap: 8px; }
+  .choice {
+    background:#0d1117; border:1px solid #30363d; border-radius: 10px;
+    padding: 12px 14px; cursor: pointer; text-align: left;
+    color: #e6edf3; font-size: .9rem; transition: all .12s; font-family: inherit;
+    word-break: break-word;
+  }
+  .choice:hover { border-color:#58a6ff; background: #161b22; }
+  .choice.correct { border-color:#238636; background: rgba(35,134,54,.2); }
+  .choice.wrong { border-color:#f85149; background: rgba(248,81,73,.15); }
+  .choice:disabled { cursor: default; }
+
+  pre.code {
+    background: #0d1117; border: 1px solid #30363d; border-radius: 10px;
+    padding: 14px; font-family: 'Consolas','Courier New',monospace;
+    font-size: .85rem; overflow-x: auto; color: #79c0ff;
+    line-height: 1.6; margin-bottom: 12px; white-space: pre;
+  }
+
+  .memory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; max-width: 520px; margin: 0 auto; }
+  @media (max-width: 480px) { .memory-grid { grid-template-columns: repeat(3, 1fr); } }
+  .mem-card {
+    min-height: 70px; background: linear-gradient(135deg,#1f2937,#0d1117);
+    border:1px solid #30363d; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .78rem; cursor: pointer; padding: 6px; text-align: center;
+    transition: all .2s; color: transparent; user-select: none;
+    font-family: 'Consolas', monospace; word-break: break-all;
+  }
+  .mem-card.flipped, .mem-card.matched { color: #e6edf3; background: #161b22; }
+  .mem-card.matched { border-color: #238636; background: rgba(35,134,54,.15); pointer-events: none; }
+  .mem-card.flipped { border-color:#58a6ff; }
+
+  .feedback { margin-top: 12px; padding: 12px 14px; border-radius: 8px; font-size: .85rem; line-height: 1.6; }
+  .feedback.ok { background: rgba(35,134,54,.15); border:1px solid #238636; color:#7ee787; }
+  .feedback.err { background: rgba(248,81,73,.12); border:1px solid #f85149; color:#ff7b72; }
+  .feedback .joke { display:block; margin-top: 8px; padding-top: 8px; border-top: 1px dashed currentColor; font-style: italic; opacity: .95; }
+  .feedback .teach { display:block; margin-top: 8px; font-size: .8rem; color:#c9d1d9; }
+  .feedback .teach b { color: #d2a8ff; }
+
+  .boss-area { text-align: center; margin-bottom: 14px; }
+  .boss { font-size: 3rem; }
+  .hp-bar { height: 16px; background: #0d1117; border:1px solid #30363d; border-radius: 999px; overflow: hidden; margin: 6px 0; }
+  .hp-fill { height: 100%; background: linear-gradient(90deg,#f85149,#ff7b72); transition: width .3s; }
+
+  .typing-target {
+    font-family: 'Consolas', monospace; background:#0d1117; padding: 14px;
+    border-radius: 10px; border:1px solid #30363d; margin-bottom: 12px;
+    font-size: .9rem; white-space: pre-wrap; color: #79c0ff; word-break: break-all;
+  }
+  .typing-input {
+    width: 100%; min-height: 80px; padding: 12px;
+    background:#0d1117; border:1px solid #30363d; border-radius: 10px;
+    color: #e6edf3; font-family: 'Consolas', monospace; font-size: .9rem;
+    resize: vertical; outline: none;
+  }
+  .typing-input:focus { border-color:#58a6ff; }
+
+  .hint { font-size: .8rem; color:#7ee787; margin-top: 8px; }
+  code { font-family: 'Consolas', monospace; background: rgba(88,166,255,.1); padding: 1px 5px; border-radius: 4px; }
+
+  /* ===== HINT/PEMBELAJARAN ===== */
+  .hint-panel {
+    margin-bottom: 14px;
+    background: linear-gradient(135deg, rgba(210,168,255,.08), rgba(88,166,255,.05));
+    border: 1px dashed #d2a8ff;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all .2s;
+  }
+  .hint-toggle {
+    width: 100%; padding: 12px 14px; background: transparent; border: none;
+    color: #d2a8ff; font-weight: 600; font-size: .85rem; text-align: left;
+    cursor: pointer; font-family: inherit; display: flex;
+    justify-content: space-between; align-items: center; gap: 10px;
+  }
+  .hint-toggle:hover { background: rgba(210,168,255,.06); }
+  .hint-toggle .arrow {
+    transition: transform .25s; color:#d2a8ff; font-size:.8rem;
+  }
+  .hint-panel.open .hint-toggle .arrow { transform: rotate(180deg); }
+  .hint-body {
+    max-height: 0; overflow: hidden; transition: max-height .35s ease, padding .2s;
+    font-size: .85rem; color:#c9d1d9; line-height: 1.65; padding: 0 14px;
+  }
+  .hint-panel.open .hint-body { max-height: 700px; padding: 0 14px 14px; }
+  .hint-body pre {
+    background: #161b22; padding: 10px 12px; border-radius: 8px;
+    font-family: 'Consolas', monospace; font-size: .78rem; color:#79c0ff;
+    overflow-x: auto; margin: 8px 0; line-height: 1.5; white-space: pre;
+  }
+  .hint-body ul { margin: 6px 0 10px 20px; line-height: 1.7; }
+  .hint-body b { color: #d2a8ff; }
+  .hint-body .kw {
+    color: #ff7b72; font-weight: 600;
+  }
+  .hint-body .fn { color: #d2a8ff; }
+  .hint-body .str { color: #a5d6ff; }
+
+  .tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+  .tab {
+    padding: 8px 14px; border-radius: 8px; border:1px solid #30363d;
+    background:#0d1117; color:#8b949e; cursor:pointer; font-size:.85rem;
+    font-family: inherit; font-weight:600; transition: all .15s;
+  }
+  .tab:hover { color:#e6edf3; border-color:#58a6ff; }
+  .tab.active { background: rgba(88,166,255,.15); border-color:#58a6ff; color:#58a6ff; }
+
+  .lesson { background: #0d1117; border:1px solid #21262d; border-radius: 10px; margin-bottom: 10px; overflow: hidden; }
+  .lesson-head {
+    padding: 12px 14px; cursor: pointer; display: flex; justify-content: space-between;
+    align-items: center; font-weight: 600; font-size: .9rem; user-select: none;
+  }
+  .lesson-head:hover { background: #161b22; }
+  .lesson-head .arrow { transition: transform .2s; color:#8b949e; }
+  .lesson.open .arrow { transform: rotate(90deg); }
+  .lesson-body { max-height: 0; overflow: hidden; transition: max-height .3s ease; padding: 0 14px; }
+  .lesson.open .lesson-body { max-height: 2000px; padding: 0 14px 14px; }
+  .lesson-body p { font-size: .85rem; color:#c9d1d9; line-height: 1.65; margin-bottom: 8px; }
+  .lesson-body ul { margin: 6px 0 10px 20px; font-size: .85rem; color:#c9d1d9; line-height: 1.7; }
+  .lesson-body code { background: rgba(88,166,255,.12); }
+  .lesson-body pre {
+    background:#161b22; padding: 12px; border-radius: 8px; font-family: 'Consolas', monospace;
+    font-size: .8rem; color:#79c0ff; overflow-x:auto; margin: 8px 0; line-height:1.5;
+  }
+  .lesson-body .tip {
+    background: rgba(210,168,255,.08); border-left: 3px solid #d2a8ff;
+    padding: 8px 12px; border-radius: 6px; font-size:.8rem; margin-top: 8px; color:#e2c7ff;
+  }
+
+  .sensei {
+    display: flex; gap: 10px; align-items: flex-start; margin-bottom: 14px;
+    background: linear-gradient(135deg, rgba(88,166,255,.08), rgba(210,168,255,.06));
+    border:1px solid #30363d; border-radius: 12px; padding: 12px 14px;
+  }
+  .sensei .avatar-s { font-size: 1.8rem; flex-shrink:0; }
+  .sensei .bubble { font-size: .85rem; color:#c9d1d9; line-height: 1.55; }
+  .sensei .bubble b { color:#58a6ff; }
+
+  #photo-input { display: none; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>⚡ Code<span>Quest</span></h1>
+    <p>Belajar HTML, CSS & JavaScript sambil bermain 🎮</p>
+  </header>
+
+  <nav class="navbar">
+    <button class="nav-btn active" data-page="home">🏠 Home</button>
+    <button class="nav-btn" data-page="profile">👤 Profil & Stats</button>
+    <button class="nav-btn" data-page="history">📜 Riwayat <span class="badge hidden" id="hist-badge">0</span></button>
+    <button class="nav-btn" data-page="materi">📚 Materi</button>
+  </nav>
+
+  <!-- HOME -->
+  <div class="page active" id="page-home">
+    <section class="card" id="menu-card">
+      <div class="sensei">
+        <div class="avatar-s">🧙‍♂️</div>
+        <div class="bubble" id="sensei-msg">Yo! Aku <b>Sensei Quest</b>. Bingung soal? Buka tombol <b>💡 Pembelajaran</b> di setiap soal ya! Nanti aku jelasin pelan-pelan 😏</div>
+      </div>
+      <h2>🎮 Pilih Mode Permainan</h2>
+      <div class="menu-grid" id="menu-grid"></div>
+    </section>
+
+    <section class="card hidden" id="game-card">
+      <div class="game-head">
+        <button class="btn ghost" id="btn-back">← Menu</button>
+        <h2 id="game-title"></h2>
+      </div>
+      <div id="game-body"></div>
+    </section>
+  </div>
+
+  <!-- PROFIL -->
+  <div class="page" id="page-profile">
+    <section class="card">
+      <div class="profile-header">
+        <div class="avatar-wrap">
+          <div class="avatar" id="avatar-display">?</div>
+          <label for="photo-input" class="avatar-edit" title="Ganti foto">📷</label>
+          <input type="file" id="photo-input" accept="image/*" />
+        </div>
+        <div class="profile-meta">
+          <h3 id="pm-nama">Belum ada nama</h3>
+          <div class="nim" id="pm-nim">NIM: -</div>
+          <div class="jurusan" id="pm-jurusan">Jurusan: -</div>
+          <div class="level-badge" id="pm-level">⭐ Level 1</div>
+        </div>
+      </div>
+
+      <h2>✏️ Edit Profil</h2>
+      <div class="row">
+        <div class="field"><label>Nama</label><input id="inp-nama" type="text" placeholder="Nama lengkap" /></div>
+        <div class="field"><label>NIM</label><input id="inp-nim" type="text" placeholder="Nomor Induk Mahasiswa" /></div>
+        <div class="field"><label>Jurusan</label><input id="inp-jurusan" type="text" placeholder="Contoh: Teknik Informatika" /></div>
+      </div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap">
+        <button class="btn primary" id="btn-save">💾 Simpan Profil</button>
+        <button class="btn ghost" id="btn-remove-photo">🗑️ Hapus Foto</button>
+      </div>
+      <div class="hint" id="profile-msg"></div>
+    </section>
+
+    <section class="card">
+      <h2>📊 Statistik Lengkap</h2>
+      <div class="stats-grid" id="stats-grid"></div>
+      <div id="xp-bar-wrap"></div>
+      <h3 style="font-size:.9rem;margin:16px 0 8px;color:#8b949e">📈 Statistik per Mode</h3>
+      <div class="mode-stats" id="mode-stats"></div>
+    </section>
+  </div>
+
+  <!-- RIWAYAT -->
+  <div class="page" id="page-history">
+    <section class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px">
+        <h2 style="margin:0">📜 Riwayat Pengerjaan</h2>
+        <button class="btn danger sm" id="btn-clear-history">🗑️ Hapus Semua Riwayat</button>
+      </div>
+      <div class="history-summary" id="history-summary"></div>
+      <div class="history-filter" id="history-filter">
+        <button class="chip active" data-filter="all">Semua</button>
+        <button class="chip" data-filter="correct">✅ Benar</button>
+        <button class="chip" data-filter="wrong">❌ Salah</button>
+      </div>
+      <div class="history-list" id="history-list"></div>
+    </section>
+  </div>
+
+  <!-- MATERI -->
+  <div class="page" id="page-materi">
+    <section class="card">
+      <h2>📚 Materi Belajar (Baca Dulu, Biar Gak Nge-blank)</h2>
+      <div class="tabs">
+        <button class="tab active" data-tab="html">🌐 HTML</button>
+        <button class="tab" data-tab="css">🎨 CSS</button>
+        <button class="tab" data-tab="js">⚙️ JavaScript</button>
+        <button class="tab" data-tab="tips">💡 Tips Debug</button>
+      </div>
+      <div id="materi-container"></div>
+    </section>
+  </div>
+</div>
+
+<script>
+/* ==================== HELPERS ==================== */
+const el = id => document.getElementById(id);
+const escapeHtml = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const shuffle = a => { for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+function fmtTime(ts){
+  const d = new Date(ts);
+  const pad = n => String(n).padStart(2,'0');
+  return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+function timeAgo(ts){
+  const s = Math.floor((Date.now()-ts)/1000);
+  if(s < 60) return 'baru aja';
+  if(s < 3600) return `${Math.floor(s/60)} menit lalu`;
+  if(s < 86400) return `${Math.floor(s/3600)} jam lalu`;
+  if(s < 604800) return `${Math.floor(s/86400)} hari lalu`;
+  return fmtTime(ts);
+}
+function showToast(msg){
+  const t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:linear-gradient(90deg,#238636,#2ea043);color:#fff;padding:12px 22px;border-radius:10px;font-size:.9rem;font-weight:600;z-index:1000;box-shadow:0 8px 24px rgba(0,0,0,.5);max-width:90vw;text-align:center;';
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(), 2500);
+}
+
+/* ===== HINT PANEL (PEMBELAJARAN PER SOAL) ===== */
+function renderHint(hint, customLabel){
+  if(!hint) return '';
+  const label = customLabel || 'Belum paham? Buka pembelajaran di sini';
+  return `
+    <div class="hint-panel">
+      <button class="hint-toggle" onclick="this.parentElement.classList.toggle('open')">
+        <span>💡 ${label}</span>
+        <span class="arrow">▼</span>
+      </button>
+      <div class="hint-body">${hint}</div>
+    </div>
+  `;
+}
+
+/* ==================== REAKSI GAUL ==================== */
+const PRAISE = [
+  "🎉 GG! Otak lu gak se-USB 2.0 ternyata 😎",
+  "🔥 Bener! Keren, sampai keyboard-ku ikutan bangga ⌨️✨",
+  "😤 Mantap! Sini tos dulu 🖐️",
+  "💯 Bener bro! Kayak kamu udah pernah ngoding 10 tahun aja",
+  "🚀 Wih! Kamu bukan junior lagi, kamu JUNIOR PRO MAX",
+  "🧠 Otakmu bekerja lebih cepat dari WiFi kantor 😆",
+  "👑 BRAVO! StackOverflow aja sampai nge-like jawabanmu",
+  "🎯 Tepat sasaran! Ronaldo aja kalah akurasi sama lu",
+  "🤖 ChatGPT iri sama jawabanmu, sumpah",
+  "😏 Bener. Jangan sombong ya, masih banyak bug yang nunggu",
+  "✨ Nice! Kamu satu langkah lebih dekat jadi fullstack dewa",
+  "🎊 Bener! Nanti aku kasih sertifikat... bohongan sih 😂",
+  "🍜 Benar! Makan mie dulu biar otak tetap bekerja",
+  "🏆 GG! Kalau ngoding itu gim, kamu udah naik rank nih",
+  "💪 Benar! Bahkan komputer aja ngangguk-ngangguk setuju",
+];
+const ROAST = [
+  "💀 Yah salah... tapi santai, Steve Jobs juga sering typo kok",
+  "😅 Salah nih. Coba napas dulu, minum air, baru jawab lagi",
+  "🤔 Salah. Tenang, bukan kamu yang salah — kodenya yang gak ngerti kamu",
+  "😭 Aduh. Ini mah bukan bug, ini fitur baru 😂",
+  "🙃 Salah. Kayaknya kamu perlu ngopi dulu, atau tidur, atau... ya terserah",
+  "🐛 Ada yang salah. Tapi bug itu guru terbaik, percaya deh",
+  "🤡 Salah. Semangat! Setidaknya kamu konsisten... konsisten salah 😆",
+  "😴 Belum tepat. Santai, ini bukan ujian, jadi jangan nangis ya",
+  "🌚 Yah salah. ChatGPT juga gak selalu bener kok (tapi biasanya lebih bener sih)",
+  "🥲 Salah nih. Tapi yang penting kamu sudah mencoba... dan mencoba... dan mencoba",
+  "💔 Salah. Aku gak kecewa, cuma agak... hmm, ya gitu lah",
+  "🧟 Salah. Jangan menyerah! Bug tidak akan mengalahkan kita!",
+  "🍕 Salah. Coba lagi, kalau benar aku traktir pizza (bohongan lagi)",
+  "🌧️ Hmm, kurang tepat. Tapi jangan sedih, sedih gak bisa bikin kode jalan",
+  "🎪 Salah. Ini bukan sirkus, tapi kamu berhasil menghibur aku",
+  "🚮 Salah. Bukan berarti kamu sampah, ini cuma bug kecil kok",
+];
+const TEACH_NOTE = {
+  builder:'💡 Tips: HTML bersarang (nested). Tag yang dibuka terakhir harus ditutup paling awal.',
+  debug:'💡 Tips: Baca error message! 90% debugging itu membaca dengan teliti.',
+  kuis:'💡 Tips: Hafalin tag dasar dulu. HTML = struktur, CSS = tampilan, JS = logika.',
+  typing:'💡 Tips: Ngoding itu lomba ketelitian, bukan kecepatan.',
+  output:'💡 Tips: JavaScript unik. <code>"5" + 3 = "53"</code> tapi <code>"5" - 3 = 2</code>.',
+  memory:'💡 Tips: <b>h1-h6</b> heading, <b>p</b> paragraph, <b>a</b> anchor, <b>img</b> image.',
+  boss:'💡 Tips: Fokus, jangan panik, baca soal perlahan.',
+  puzzle:'💡 Tips: Fill in the blank = latihan pola.',
+  unscramble:'💡 Tips: Urutan umum: <b>keyword → nama → operator → nilai → ;</b>',
+  challenge:'💡 Tips: Santai aja, semua master dulunya pemula.',
+};
+function funFeedback(ok, modeId, extra){
+  const joke = ok ? pick(PRAISE) : pick(ROAST);
+  const tip = TEACH_NOTE[modeId] || '';
+  return `<div class="feedback ${ok?'ok':'err'}">${ok?'✓':'✗'} ${extra}<span class="joke">${joke}</span><span class="teach">${tip}</span></div>`;
+}
+
+/* ==================== STATE ==================== */
+const state = {
+  user: { nama:'', nim:'', jurusan:'', photo:'' },
+  xp: 0, level: 1, streak: 0, bestStreak: 0,
+  totalCorrect: 0, totalAnswered: 0,
+  modeStats: {}, history: []
+};
+function save(){
+  try { localStorage.setItem('codequest_v1', JSON.stringify(state)); }
+  catch(e){
+    state.history = state.history.slice(0, 20);
+    try { localStorage.setItem('codequest_v1', JSON.stringify(state)); } catch(_){}
+  }
+}
+function load(){
+  try {
+    const s = localStorage.getItem('codequest_v1');
+    if(s){
+      const p = JSON.parse(s);
+      Object.assign(state, p);
+      state.user = Object.assign({ nama:'', nim:'', jurusan:'', photo:'' }, p.user||{});
+      state.history = p.history || [];
+    }
+  } catch(e){}
+}
+function addXP(n){
+  const before = state.level;
+  state.xp += n;
+  state.level = Math.floor(state.xp/150)+1;
+  if(state.level > before) showToast(pick([
+    `🎉 LEVEL UP! Sekarang Level ${state.level}, cuy!`,
+    `🚀 NAIK LEVEL! Level ${state.level} — kamu makin dewa`,
+    `👑 LEVEL UP ke ${state.level}! Jangan besar kepala ya 😏`,
+  ]));
+  save(); renderStats();
+}
+function addHistory(modeId, question, correct, xpGained){
+  const mode = MODES.find(m => m.id === modeId);
+  state.history.unshift({
+    mode: modeId,
+    modeName: mode ? mode.name : modeId,
+    icon: mode ? mode.icon : '🎮',
+    question: question.length > 200 ? question.slice(0,197)+'...' : question,
+    correct, xp: xpGained, ts: Date.now()
+  });
+  if(state.history.length > 100) state.history = state.history.slice(0, 100);
+  save(); renderHistory(); updateHistBadge();
+}
+function recordAnswer(mode, correct, question, xpGained){
+  state.totalAnswered++;
+  if(correct){
+    state.totalCorrect++; state.streak++;
+    if(state.streak > state.bestStreak) state.bestStreak = state.streak;
+  } else state.streak = 0;
+  if(!state.modeStats[mode]) state.modeStats[mode] = { played:0, correct:0 };
+  state.modeStats[mode].played++;
+  if(correct) state.modeStats[mode].correct++;
+  addXP(xpGained);
+  addHistory(mode, question, correct, xpGained);
+}
+
+/* ==================== RENDER ==================== */
+function renderProfile(){
+  const {nama, nim, jurusan, photo} = state.user;
+  const initial = nama ? nama.charAt(0).toUpperCase() : '?';
+  el('avatar-display').innerHTML = photo ? `<img src="${photo}" alt="Foto profil" />` : initial;
+  el('pm-nama').textContent = nama || 'Belum ada nama';
+  el('pm-nim').textContent = 'NIM: ' + (nim || '-');
+  el('pm-jurusan').textContent = 'Jurusan: ' + (jurusan || '-');
+  el('pm-level').textContent = `⭐ Level ${state.level} • ${state.xp} XP`;
+}
+function renderStats(){
+  const acc = state.totalAnswered ? Math.round(state.totalCorrect/state.totalAnswered*100) : 0;
+  el('stats-grid').innerHTML = `
+    <div class="stat-box"><div class="num">${state.level}</div><div class="lbl">Level</div></div>
+    <div class="stat-box purple"><div class="num">${state.xp}</div><div class="lbl">Total XP</div></div>
+    <div class="stat-box orange"><div class="num">${state.streak}</div><div class="lbl">Streak</div></div>
+    <div class="stat-box green"><div class="num">${acc}%</div><div class="lbl">Akurasi</div></div>
+    <div class="stat-box"><div class="num">${state.totalAnswered}</div><div class="lbl">Soal</div></div>
+    <div class="stat-box pink"><div class="num">${state.bestStreak}</div><div class="lbl">Best Streak</div></div>
+  `;
+  const xpInLevel = state.xp - (state.level-1)*150;
+  const pct = Math.min(100, (xpInLevel/150)*100);
+  el('xp-bar-wrap').innerHTML = `
+    <div class="xp-bar"><div class="xp-fill" style="width:${pct}%"></div></div>
+    <div style="font-size:.75rem;color:#8b949e;text-align:right">${xpInLevel} / 150 XP menuju Level ${state.level+1}</div>
+  `;
+  const entries = MODES.filter(m => state.modeStats[m.id] && state.modeStats[m.id].played > 0);
+  el('mode-stats').innerHTML = entries.length === 0
+    ? '<div style="color:#8b949e;font-size:.85rem">Belum ada mode yang dimainkan. Ayo mulai bermain! 🎮</div>'
+    : entries.map(m => {
+        const s = state.modeStats[m.id];
+        const pct = Math.round(s.correct/s.played*100);
+        return `<div class="mode-stat"><span class="name">${m.icon} ${m.name}</span><span class="val">${s.correct}/${s.played} (${pct}%)</span></div>`;
+      }).join('');
+  renderProfile();
+}
+
+/* ==================== HISTORY ==================== */
+let historyFilter = 'all';
+function updateHistBadge(){
+  const b = el('hist-badge');
+  if(state.history.length > 0){ b.textContent = state.history.length; b.classList.remove('hidden'); }
+  else b.classList.add('hidden');
+}
+function renderHistory(){
+  const total = state.history.length;
+  const correct = state.history.filter(h => h.correct).length;
+  const wrong = total - correct;
+  const totalXP = state.history.reduce((s,h) => s + (h.xp||0), 0);
+  el('history-summary').innerHTML = `
+    <div class="stat-box"><div class="num">${total}</div><div class="lbl">Total Percobaan</div></div>
+    <div class="stat-box green"><div class="num">${correct}</div><div class="lbl">Benar</div></div>
+    <div class="stat-box pink"><div class="num">${wrong}</div><div class="lbl">Salah</div></div>
+    <div class="stat-box purple"><div class="num">${totalXP}</div><div class="lbl">XP dari Riwayat</div></div>
+  `;
+  let list = state.history;
+  if(historyFilter === 'correct') list = list.filter(h => h.correct);
+  else if(historyFilter === 'wrong') list = list.filter(h => !h.correct);
+  const container = el('history-list');
+  if(list.length === 0){
+    container.innerHTML = `<div class="empty-state"><div class="icon">📭</div><div>${state.history.length === 0 ? 'Belum ada riwayat pengerjaan.<br>Yuk mulai main dulu di Home!' : 'Tidak ada data dengan filter ini.'}</div></div>`;
+    return;
+  }
+  container.innerHTML = list.map(h => `
+    <div class="history-item ${h.correct?'correct':'wrong'}">
+      <div class="history-icon">${h.correct?'✅':'❌'}</div>
+      <div class="history-body">
+        <div class="history-mode">${h.icon} ${escapeHtml(h.modeName)}</div>
+        <div class="history-q">${escapeHtml(h.question)}</div>
+        <div class="history-meta">
+          <span>🕐 ${timeAgo(h.ts)}</span>
+          <span>📅 ${fmtTime(h.ts)}</span>
+          <span class="history-xp">+${h.xp||0} XP</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ==================== MODES ==================== */
+const MODES = [
+  { id:'builder',    icon:'🧩', name:'Susun Kode',    desc:'Klik potongan kode dan susun dengan urutan benar.' },
+  { id:'debug',      icon:'🐛', name:'Debug Hunter',  desc:'Temukan baris kode yang salah.' },
+  { id:'kuis',       icon:'❓', name:'Kuis Coding',   desc:'Jawab pertanyaan pilihan ganda.' },
+  { id:'typing',     icon:'⌨️', name:'Speed Typing',  desc:'Ketik ulang kode secepat & seakurat mungkin.' },
+  { id:'output',     icon:'🔮', name:'Tebak Output',  desc:'Tebak hasil dari kode yang ditampilkan.' },
+  { id:'memory',     icon:'🧠', name:'Memory Syntax', desc:'Jodohkan tag dengan fungsinya.' },
+  { id:'boss',       icon:'🏰', name:'Boss Battle',   desc:'Kalahkan boss dengan jawaban benar!' },
+  { id:'puzzle',     icon:'🔗', name:'Code Puzzle',   desc:'Isi bagian kode yang kosong.' },
+  { id:'unscramble', icon:'📦', name:'Unscramble',    desc:'Susun token acak menjadi kode yang valid.' },
+  { id:'challenge',  icon:'🎯', name:'Mini Challenge',desc:'Selesaikan tantangan coding bertingkat.' },
+];
+
+/* ==================== MATERI TAB ==================== */
+const MATERI = {
+  html: [
+    { title:'Apa itu HTML?', body:`<p>HTML (<b>HyperText Markup Language</b>) itu kerangka halaman web.</p><pre>&lt;h1&gt;Halo Dunia&lt;/h1&gt;</pre><div class="tip">🎯 Analogi: HTML = kerangka rumah, CSS = dekorasi, JS = listrik.</div>`},
+    { title:'Struktur Dasar Halaman', body:`<pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+  &lt;head&gt;&lt;title&gt;Judul&lt;/title&gt;&lt;/head&gt;
+  &lt;body&gt;&lt;h1&gt;Halo!&lt;/h1&gt;&lt;/body&gt;
+&lt;/html&gt;</pre>`},
+    { title:'Tag HTML Paling Sering Dipakai', body:`<ul><li><code>&lt;h1&gt;-&lt;h6&gt;</code> judul</li><li><code>&lt;p&gt;</code> paragraf</li><li><code>&lt;a&gt;</code> link</li><li><code>&lt;img&gt;</code> gambar</li><li><code>&lt;ul&gt;/&lt;ol&gt;/&lt;li&gt;</code> list</li><li><code>&lt;div&gt;</code> container</li><li><code>&lt;button&gt;</code> tombol</li></ul>`},
+    { title:'Atribut HTML', body:`<pre>&lt;a href="https://google.com"&gt;Google&lt;/a&gt;
+&lt;img src="kucing.jpg" alt="Kucing"&gt;</pre>`},
+  ],
+  css: [
+    { title:'Apa itu CSS?', body:`<pre>selector {
+  property: value;
+}</pre>`},
+    { title:'Cara Pakai CSS', body:`<ul><li><b>External</b>: <code>&lt;link&gt;</code></li><li><b>Internal</b>: <code>&lt;style&gt;</code></li><li><b>Inline</b>: <code>style="..."</code></li></ul>`},
+    { title:'Selector CSS', body:`<ul><li><code>p { }</code> tag</li><li><code>.kotak { }</code> class</li><li><code>#header { }</code> id</li></ul>`},
+    { title:'Property Populer', body:`<ul><li><code>color</code> warna teks</li><li><code>background</code></li><li><code>padding</code>/<code>margin</code></li><li><code>display: flex</code></li></ul>`},
+  ],
+  js: [
+    { title:'Apa itu JavaScript?', body:`<p>JS bikin web hidup. Tombol bisa diklik, data bisa dinamis.</p>`},
+    { title:'Variabel', body:`<pre>let nama = "Budi";
+const umur = 17;</pre>`},
+    { title:'Tipe Data', body:`<ul><li>String <code>"Halo"</code></li><li>Number <code>42</code></li><li>Boolean <code>true</code></li><li>Array <code>[1,2,3]</code></li><li>Object <code>{nama:"Budi"}</code></li></ul>`},
+    { title:'Function & Kondisi', body:`<pre>function sapa(nama) {
+  return "Halo " + nama;
+}
+if (umur >= 17) { console.log("KTP"); }</pre>`},
+    { title:'Loop & DOM', body:`<pre>for (let i = 0; i &lt; 5; i++) {
+  console.log(i);
+}
+document.getElementById("btn");</pre>`},
+  ],
+  tips: [
+    { title:'Cara Debug', body:`<ul><li>Baca error</li><li>Cek tanda baca</li><li>console.log</li><li>F12 DevTools</li><li>Google error</li></ul>`},
+    { title:'Tips Belajar', body:`<ul><li>Praktik > nonton</li><li>Bikin project kecil</li><li>Jangan copas buta</li><li>Konsisten</li></ul>`},
+    { title:'Kesalahan Umum', body:`<ul><li><code>=</code> vs <code>===</code></li><li><code>getElementByID</code> salah, harusnya <code>getElementById</code></li><li>Lupa tutup tag</li><li><code>backround</code> → <code>background</code></li></ul>`},
+  ],
+};
+function renderMateri(tab){
+  const list = MATERI[tab] || [];
+  el('materi-container').innerHTML = list.map((l,i) => `
+    <div class="lesson">
+      <div class="lesson-head"><span>${escapeHtml(l.title)}</span><span class="arrow">▶</span></div>
+      <div class="lesson-body">${l.body}</div>
+    </div>
+  `).join('');
+  document.querySelectorAll('.lesson-head').forEach(h => {
+    h.onclick = () => h.parentElement.classList.toggle('open');
+  });
+  const first = document.querySelector('.lesson');
+  if(first) first.classList.add('open');
+}
+
+/* ==================== MENU ==================== */
+function renderMenu(){
+  el('menu-grid').innerHTML = MODES.map(m => `
+    <button class="mode-card" data-mode="${m.id}">
+      <div class="icon">${m.icon}</div>
+      <div class="name">${m.name}</div>
+      <div class="desc">${m.desc}</div>
+    </button>
+  `).join('');
+  document.querySelectorAll('.mode-card').forEach(c => c.onclick = () => startGame(c.dataset.mode));
+}
+function startGame(modeId){
+  const mode = MODES.find(m => m.id === modeId);
+  el('menu-card').classList.add('hidden');
+  el('game-card').classList.remove('hidden');
+  el('game-title').textContent = `${mode.icon} ${mode.name}`;
+  el('game-body').innerHTML = '';
+  el('game-card').scrollIntoView({ behavior:'smooth', block:'start' });
+  ({ builder: gameBuilder, debug: gameDebug, kuis: gameKuis, typing: gameTyping,
+     output: gameOutput, memory: gameMemory, boss: gameBoss, puzzle: gamePuzzle,
+     unscramble: gameUnscramble, challenge: gameChallenge }[modeId])();
+}
+function backToMenu(){
+  el('game-card').classList.add('hidden');
+  el('menu-card').classList.remove('hidden');
+  el('sensei-msg').innerHTML = pick([
+    'Mau main lagi? Pilih mode lain, jangan stuck di satu mode aja 😏',
+    'Balik ke menu nih. Yang tadi gimana? Seru kan? 🔥',
+    'Pilih mode baru? Aku tungguin nih, jangan lama-lama 🧙‍♂️',
+  ]);
+  el('menu-card').scrollIntoView({ behavior:'smooth' });
+}
+function addNextButton(modeId, cb){
+  const btn = document.createElement('button');
+  btn.className = 'btn primary';
+  btn.style.marginTop = '12px';
+  btn.textContent = pick(['Soal Berikutnya →','Lanjut cuy →','Next! →','Gaspol lagi →']);
+  btn.onclick = cb || (() => startGame(modeId));
+  el('fb').appendChild(btn);
+}
+
+/* ==================== BANK SOAL + HINTS ==================== */
+
+const builderTasks = [
+  {
+    title:'Susun struktur HTML dasar yang benar',
+    lines:['<!DOCTYPE html>','<html>','<head>','<title>Halo</title>','</head>','<body>','<h1>Halo</h1>','</body>','</html>'],
+    hint:`<p>Struktur HTML punya urutan tetap seperti ini:</p>
+<pre>&lt;!DOCTYPE html&gt;   ← wajib paling atas
+&lt;html&gt;            ← pembungkus utama
+  &lt;head&gt;          ← info halaman
+    &lt;title&gt;...&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;          ← isi yang kelihatan
+    &lt;h1&gt;...&lt;/h1&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</pre>
+<p><b>Kunci:</b> <code>&lt;head&gt;</code> selalu di dalam <code>&lt;html&gt;</code>, dan <code>&lt;body&gt;</code> SETELAH <code>&lt;head&gt;</code> ditutup.</p>`
+  },
+  {
+    title:'Susun aturan CSS untuk kotak biru',
+    lines:['.box {','  width: 100px;','  height: 100px;','  background: blue;','}'],
+    hint:`<p>Format CSS: <code>selector { property: value; }</code></p>
+<pre>.box {
+  width: 100px;      ← lebar
+  height: 100px;     ← tinggi
+  background: blue;  ← warna
+}</pre>
+<p>Urutan property <b>tidak wajib</b> urut seperti ini, tapi best practice: <b>dimensi dulu, baru styling</b>.</p>
+<p>⚠️ Jangan lupa:</p><ul><li>Titik dua <code>:</code> antara property & value</li><li>Titik koma <code>;</code> di akhir tiap baris</li><li>Kurung kurawal <code>{ }</code> membungkus semua</li></ul>`
+  },
+  {
+    title:'Susun fungsi JavaScript penjumlahan',
+    lines:['function tambah(a, b) {','  return a + b;','}','console.log(tambah(2, 3));'],
+    hint:`<p>Pola function:</p>
+<pre>function nama(parameter) {
+  return hasil;
+}
+// baru dipanggil setelah didefinisikan
+nama(argumen);</pre>
+<p>Jadi urutan logisnya:</p>
+<ol style="margin-left:20px;line-height:1.8">
+  <li>Deklarasi function <code>function tambah(a, b) {</code></li>
+  <li>Isi function: <code>return a + b;</code></li>
+  <li>Tutup kurung kurawal <code>}</code></li>
+  <li>Baru panggil function-nya: <code>console.log(tambah(2, 3));</code></li>
+</ol>`
+  }
+];
+
+const debugTasks = [
+  { code:['let nama = "Budi";','console.log("Halo " + nama;','let umur = 17;'], bug:1, explain:'Kurang tanda tutup kurung ")" pada console.log',
+    hint:`<p>Perhatikan setiap <code>console.log()</code>. Formatnya:</p>
+<pre>console.log("teks");</pre>
+<p>Harus ada <b>tutup kurung <code>)</code></b> sebelum titik koma <code>;</code>.</p>
+<p>Coba cek baris yang punya <code>console.log(</code> — apakah ada <code>)</code>-nya?</p>` },
+  { code:['let x = 5;','if (x = 5) {','  console.log("Lima");','}'], bug:1, explain:'Gunakan === untuk membandingkan, bukan =',
+    hint:`<p>Di JavaScript ada perbedaan besar antara:</p>
+<ul><li><code>=</code> → <b>assignment</b> (memberi nilai): <code>x = 5</code></li><li><code>===</code> → <b>perbandingan</b> (cek sama atau tidak): <code>x === 5</code></li></ul>
+<p>Di dalam <code>if (...)</code> kita mau <b>membandingkan</b>, bukan memberi nilai. Jadi harus <code>===</code>.</p>` },
+  { code:['document.getElementByID("box");'], bug:0, explain:'Method seharusnya getElementById (huruf d kecil)',
+    hint:`<p>JavaScript <b>case-sensitive</b> (huruf besar/kecil beda).</p>
+<p>Method yang benar: <code>document.<b>getElementById</b>()</code> — perhatikan huruf <b>d</b> kecil di <code>Id</code>.</p>
+<p>Bukan <code>getElementByID</code>, bukan <code>getElementByid</code>.</p>` },
+  { code:['for (let i = 0; i < 5; i--) {','  console.log(i);','}'], bug:0, explain:'i-- membuat loop tak berujung. Seharusnya i++',
+    hint:`<p>Loop <code>for</code> punya 3 bagian: <code>for (awal; kondisi; langkah)</code></p>
+<pre>for (let i = 0; i < 5; i++) { ... }</pre>
+<ul>
+<li><code>i = 0</code> → mulai dari 0</li>
+<li><code>i &lt; 5</code> → berhenti kalau i ≥ 5</li>
+<li><code>i++</code> → tambah 1 tiap putaran</li>
+</ul>
+<p>Kalau pakai <code>i--</code>, nilai i <b>turun terus</b>, gak pernah nyampe 5 → <b>infinite loop</b> 😵</p>` },
+  { code:['.box {','  backround: blue;','}'], bug:1, explain:'Typo! Seharusnya "background"',
+    hint:`<p>Ini soal <b>typo</b>. Perhatikan ejaan tiap property CSS.</p>
+<p>Yang benar: <code>background</code> (bukan <code>backround</code>).</p>
+<p>CSS akan <b>mengabaikan</b> property yang salah eja, jadi walau gak error, warna gak akan muncul.</p>` },
+  { code:['let total = 0;','for (let i = 1; i <= 3; i++) {','  total =+ i;','}','console.log(total);'], bug:2, explain:'Seharusnya "+=" bukan "=+"',
+    hint:`<p>Operator penjumlahan singkat:</p>
+<ul><li><code>total += i</code> → <b>total = total + i</b> ✅ (menambah)</li><li><code>total =+ i</code> → <b>total = (+i)</b> → cuma <b>assign</b> nilai i ke total ❌</li></ul>
+<p><b>Urutan penting!</b> <code>+=</code> (plus dulu baru sama dengan) berbeda dengan <code>=+</code> (sama dengan dulu baru plus).</p>` },
+];
+
+const quizData = [
+  { q:'Apa kepanjangan HTML?', options:['Hyper Text Markup Language','High Tech Modern Language','Home Tool Markup Language','Hyperlinks Text Mark Language'], a:0,
+    hint:`<p><b>HTML</b> = <b>H</b>yper<b>T</b>ext <b>M</b>arkup <b>L</b>anguage.</p>
+<p>Kata kuncinya:</p>
+<ul><li><b>HyperText</b> → teks yang bisa "loncat" (link)</li><li><b>Markup</b> → pakai tanda/tag untuk menandai struktur</li><li><b>Language</b> → bahasa</li></ul>
+<p>Jadi bukan bahasa pemrograman, tapi bahasa <b>markup</b>.</p>` },
+  { q:'Tag HTML untuk membuat paragraf adalah...', options:['<p>','<div>','<span>','<br>'], a:0,
+    hint:`<p>Ingat singkatan tag HTML:</p>
+<ul><li><code>&lt;p&gt;</code> = <b>p</b>aragraph (paragraf) ✅</li><li><code>&lt;div&gt;</code> = division (pembagi/container)</li><li><code>&lt;span&gt;</code> = span (teks inline)</li><li><code>&lt;br&gt;</code> = line break (baris baru)</li></ul>
+<p>Untuk paragraf → <code>&lt;p&gt;</code>.</p>` },
+  { q:'CSS digunakan untuk...', options:['Mengatur tampilan halaman','Menyimpan data','Membuat database','Mengelola server'], a:0,
+    hint:`<p>Pembagian tugas di web:</p>
+<ul>
+<li><b>HTML</b> → struktur / kerangka</li>
+<li><b>CSS</b> → tampilan / dekorasi (warna, ukuran, layout)</li>
+<li><b>JavaScript</b> → logika & interaksi</li>
+</ul>
+<p>CSS = <b>Cascading Style Sheets</b> → "Style" artinya gaya/tampilan.</p>` },
+  { q:'Atribut untuk menyisipkan gambar di HTML?', options:['src','href','link','img'], a:0,
+    hint:`<p>Perhatikan bedanya:</p>
+<ul>
+<li><code>src</code> = <b>source</b> (sumber) → dipakai di <code>&lt;img&gt;</code>, <code>&lt;script&gt;</code>, <code>&lt;video&gt;</code></li>
+<li><code>href</code> = <b>hypertext reference</b> → dipakai di <code>&lt;a&gt;</code> (link)</li>
+<li><code>img</code> = nama tag, bukan atribut</li>
+</ul>
+<p>Contoh: <code>&lt;img src="foto.jpg"&gt;</code></p>` },
+  { q:'Cara mendeklarasikan variabel di JavaScript modern?', options:['let x = 5;','var x : 5;','x := 5;','int x = 5;'], a:0,
+    hint:`<p>JS modern pakai <code>let</code> atau <code>const</code>:</p>
+<pre>let x = 5;      // bisa diubah
+const y = 10;   // konstanta</pre>
+<p><code>var</code> itu cara jadul (hindari). <code>int x = 5</code> itu gaya Java/C, bukan JS. <code>:=</code> itu gaya Go/Pascal.</p>` },
+  { q:'Tag untuk membuat list bernomor?', options:['<ol>','<ul>','<li>','<list>'], a:0,
+    hint:`<p>Ada 2 jenis list di HTML:</p>
+<ul>
+<li><code>&lt;ul&gt;</code> = <b>u</b>nordered <b>l</b>ist → bullet (•)</li>
+<li><code>&lt;ol&gt;</code> = <b>o</b>rdered <b>l</b>ist → nomor (1, 2, 3)</li>
+<li><code>&lt;li&gt;</code> = <b>l</b>ist <b>i</b>tem → isi item-nya (dipakai di dalam ul/ol)</li>
+</ul>
+<p>Jadi untuk <b>bernomor</b> → <code>&lt;ol&gt;</code>.</p>` },
+  { q:'Apa hasil dari typeof "halo"?', options:['string','text','char','word'], a:0,
+    hint:`<p>Di JavaScript, tipe data dasar:</p>
+<ul><li><code>typeof "halo"</code> → <code>"string"</code></li><li><code>typeof 42</code> → <code>"number"</code></li><li><code>typeof true</code> → <code>"boolean"</code></li><li><code>typeof undefined</code> → <code>"undefined"</code></li></ul>
+<p>Teks yang diapit tanda kutip itu tipe <b>string</b>. Tidak ada tipe "char" atau "text" di JS.</p>` },
+  { q:'Selector CSS untuk id="header"?', options:['#header','.header','header','*header'], a:0,
+    hint:`<p>Simbol selector CSS:</p>
+<ul>
+<li><code>#nama</code> → <b>id</b> (unik, cuma 1 elemen)</li>
+<li><code>.nama</code> → <b>class</b> (bisa banyak elemen)</li>
+<li><code>nama</code> → <b>tag</b> HTML langsung</li>
+<li><code>*</code> → semua elemen</li>
+</ul>
+<p>Untuk <code>id="header"</code> → <code>#header</code>.</p>` },
+  { q:'Fungsi JS untuk menampilkan pesan di console?', options:['console.log()','print()','echo()','document.write()'], a:0,
+    hint:`<p>Cara print di berbagai bahasa:</p>
+<ul>
+<li><b>JavaScript</b> → <code>console.log()</code> ✅</li>
+<li>Python → <code>print()</code></li>
+<li>PHP → <code>echo</code></li>
+<li><code>document.write()</code> → tulis ke halaman HTML (jarang dipakai, jadul)</li>
+</ul>
+<p>Debug di JS pakai <code>console.log()</code>.</p>` },
+  { q:'Tag HTML untuk judul paling besar?', options:['<h1>','<h6>','<head>','<title>'], a:0,
+    hint:`<p>Heading di HTML ada 6 level: <code>&lt;h1&gt;</code> sampai <code>&lt;h6&gt;</code>.</p>
+<ul>
+<li><code>&lt;h1&gt;</code> → <b>paling besar</b> & terpenting ✅</li>
+<li><code>&lt;h6&gt;</code> → paling kecil</li>
+<li><code>&lt;head&gt;</code> → bagian info halaman (bukan heading)</li>
+<li><code>&lt;title&gt;</code> → judul di tab browser</li>
+</ul>` },
+];
+
+const outputData = [
+  { code:'console.log(2 + 3 * 4);', options:['20','14','24','9'], a:1,
+    hint:`<p>Operator aritmatika punya <b>urutan operasi</b> (sama seperti matematika):</p>
+<ol style="margin-left:20px;line-height:1.8"><li>Kali <code>*</code> dan bagi <code>/</code> dulu</li><li>Baru tambah <code>+</code> dan kurang <code>-</code></li></ol>
+<p>Jadi: <code>2 + 3 * 4</code> = <code>2 + 12</code> = <code>14</code>.</p>
+<p>Kalau mau 2+3 dulu, pakai kurung: <code>(2+3) * 4</code>.</p>` },
+  { code:'console.log("5" + 3);', options:['8','53','"53"','error'], a:1,
+    hint:`<p>Di JS, tanda <code>+</code> itu <b>fleksibel</b>:</p>
+<ul>
+<li><b>number + number</b> → penjumlahan: <code>5 + 3 = 8</code></li>
+<li><b>string + apapun</b> → penggabungan (concat): <code>"5" + 3 = "53"</code></li>
+</ul>
+<p>Karena <code>"5"</code> itu string, maka 3 juga diubah jadi string <code>"3"</code>, lalu digabung jadi <code>"53"</code>.</p>
+<p>⚠️ <code>+</code> beda dengan <code>-</code>. <code>"5" - 3 = 2</code> (dikonversi ke number).</p>` },
+  { code:'let x = 10;\nx += 5;\nconsole.log(x);', options:['10','5','15','105'], a:2,
+    hint:`<p><code>x += 5</code> itu singkatan dari <code>x = x + 5</code>.</p>
+<p>Langkah:</p>
+<ol style="margin-left:20px;line-height:1.8">
+<li><code>x = 10</code></li>
+<li><code>x += 5</code> → <code>x = 10 + 5</code> = 15</li>
+<li><code>console.log(x)</code> → print 15</li>
+</ol>` },
+  { code:'console.log(typeof 42);', options:['number','int','string','42'], a:0,
+    hint:`<p><code>typeof</code> mengembalikan tipe data sebagai <b>string</b>.</p>
+<p>Di JavaScript <b>tidak ada</b> tipe <code>int</code> atau <code>float</code> — semuanya <code>number</code> (desimal tetap dianggap number).</p>
+<ul><li><code>typeof 42</code> → <code>"number"</code></li><li><code>typeof 3.14</code> → <code>"number"</code></li><li><code>typeof "hai"</code> → <code>"string"</code></li></ul>` },
+  { code:'console.log([1,2,3].length);', options:['2','3','4','1'], a:1,
+    hint:`<p><code>.length</code> → mengembalikan jumlah item di array.</p>
+<p>Array <code>[1, 2, 3]</code> isinya 3 item: <code>1</code>, <code>2</code>, <code>3</code>.</p>
+<p>Jadi <code>.length</code> = <b>3</b>.</p>
+<p>⚠️ Index array mulai dari <b>0</b> (bukan 1): <code>arr[0] = 1</code>, <code>arr[2] = 3</code>.</p>` },
+  { code:'console.log(10 % 3);', options:['3','1','0','30'], a:1,
+    hint:`<p><code>%</code> itu <b>modulo</b> (sisa bagi), bukan persen.</p>
+<p><code>10 % 3</code> artinya: berapa sisa 10 dibagi 3?</p>
+<ul><li>10 ÷ 3 = 3 sisa <b>1</b></li><li>Karena 3 × 3 = 9, sisa = 10 - 9 = <b>1</b></li></ul>
+<p>Modulo sering dipakai cek ganjil/genap: <code>x % 2 === 0</code> berarti genap.</p>` },
+  { code:'console.log("Halo".toUpperCase());', options:['halo','HALO','Halo','H A L O'], a:1,
+    hint:`<p>Method string di JS:</p>
+<ul>
+<li><code>.toUpperCase()</code> → jadi HURUF BESAR</li>
+<li><code>.toLowerCase()</code> → jadi huruf kecil</li>
+<li><code>.length</code> → jumlah karakter</li>
+</ul>
+<p>Jadi <code>"Halo".toUpperCase()</code> = <code>"HALO"</code>.</p>` },
+  { code:'console.log(true && false);', options:['true','false','undefined','error'], a:1,
+    hint:`<p>Logika Boolean:</p>
+<ul>
+<li><code>&&</code> = AND → true hanya jika <b>kedua</b> true</li>
+<li><code>||</code> = OR → true jika <b>salah satu</b> true</li>
+<li><code>!</code> = NOT → membalik nilai</li>
+</ul>
+<p><code>true && false</code> → ada yang false → hasilnya <b>false</b>.</p>` },
+];
+
+const typingSnippets = [
+  { code:'let nama = "Budi";',
+    hint:`<p>Deklarasi variabel modern:</p>
+<pre>let nama = "Budi";</pre>
+<ul>
+<li><code>let</code> → keyword variabel</li>
+<li><code>nama</code> → nama variabel</li>
+<li><code>=</code> → memberi nilai</li>
+<li><code>"Budi"</code> → string (pakai tanda kutip)</li>
+<li><code>;</code> → akhir statement</li>
+</ul>` },
+  { code:'console.log("Halo Dunia");',
+    hint:`<p>Cara print di console:</p>
+<pre>console.log("Halo Dunia");</pre>
+<p>Perhatikan:</p>
+<ul><li><code>console.log</code> (lowercase semua)</li><li>Tanda kutip di dalam kurung</li><li>Titik koma <code>;</code> di akhir</li></ul>` },
+  { code:'const umur = 17;',
+    hint:`<p><code>const</code> = variabel yang nilainya <b>tidak bisa diubah</b>.</p>
+<pre>const umur = 17;</pre>
+<p>Kalau nanti coba <code>umur = 20</code>, akan error.</p>` },
+  { code:'function tambah(a, b) { return a + b; }',
+    hint:`<p>Function dengan parameter & return:</p>
+<pre>function nama(param1, param2) {
+  return hasil;
+}</pre>
+<p><code>return</code> mengembalikan nilai keluar dari function.</p>` },
+  { code:'for (let i = 0; i < 5; i++) { console.log(i); }',
+    hint:`<p>Loop <code>for</code> punya 3 bagian dipisah <code>;</code>:</p>
+<pre>for (mulai; kondisi; langkah) { }</pre>
+<p>Ini akan print: 0, 1, 2, 3, 4.</p>` },
+  { code:'document.getElementById("box");',
+    hint:`<p>Mengambil elemen HTML dengan id="box":</p>
+<pre>document.getElementById("box");</pre>
+<p>Perhatikan: <code>getElementById</code> → <b>Id</b> dengan d kecil, bukan ID.</p>` },
+  { code:'if (x > 10) { alert("Besar"); }',
+    hint:`<p>Kondisi <code>if</code>:</p>
+<pre>if (kondisi) { aksi }</pre>
+<p>Kalau x lebih besar dari 10 → jalankan <code>alert("Besar")</code>.</p>
+<p><code>alert()</code> = popup browser.</p>` },
+  { code:'const arr = [1, 2, 3];',
+    hint:`<p>Array ditulis dengan kurung siku <code>[ ]</code>:</p>
+<pre>const arr = [1, 2, 3];</pre>
+<p>Akses dengan index (mulai dari 0): <code>arr[0] = 1</code>, <code>arr[2] = 3</code>.</p>` },
+];
+
+const memoryPairsData = [
+  ['<h1>', 'Judul Besar'],['<p>', 'Paragraf'],['<img>', 'Gambar'],['<a>', 'Link'],
+  ['<ul>', 'List Bullet'],['<div>', 'Container'],['<body>', 'Isi Halaman'],['<head>', 'Info Halaman'],
+];
+const memoryHint = `<p>Hafalkan tag HTML & fungsinya:</p>
+<ul>
+<li><code>&lt;h1&gt;</code> = heading (judul besar)</li>
+<li><code>&lt;p&gt;</code> = paragraph (paragraf teks)</li>
+<li><code>&lt;img&gt;</code> = image (gambar)</li>
+<li><code>&lt;a&gt;</code> = anchor (link)</li>
+<li><code>&lt;ul&gt;</code> = unordered list (bullet)</li>
+<li><code>&lt;div&gt;</code> = division (container/wadah)</li>
+<li><code>&lt;body&gt;</code> = isi halaman yang kelihatan</li>
+<li><code>&lt;head&gt;</code> = info halaman (judul tab, meta)</li>
+</ul>`;
+
+const puzzleData = [
+  { code:'for (let i = 0; i < 5; ___) {\n  console.log(i);\n}', options:['i++','i--','i+','++i--'], a:0,
+    hint:`<p>Loop <code>for</code> butuh bagian ke-3 yang <b>menambah/mengurangi</b> nilai i.</p>
+<ul><li><code>i++</code> → i = i + 1 (naik) ✅</li><li><code>i--</code> → i = i - 1 (turun, malah infinite loop)</li></ul>
+<p>Karena kondisi <code>i &lt; 5</code>, i harus naik supaya loop berhenti.</p>` },
+  { code:'if (x ___ 10) {\n  console.log("Besar");\n}', options:['>','<','=','!='], a:0,
+    hint:`<p>Berdasarkan pesan yang muncul (<code>"Besar"</code>), kondisi yang cocok adalah x <b>lebih besar dari</b> 10.</p>
+<ul><li><code>&gt;</code> = lebih besar ✅</li><li><code>&lt;</code> = lebih kecil</li><li><code>=</code> = assign (bukan banding)</li><li><code>!=</code> = tidak sama</li></ul>` },
+  { code:'function sapa(nama) {\n  ___ "Halo " + nama;\n}', options:['return','console.log','print','give'], a:0,
+    hint:`<p>Function biasanya <b>mengembalikan</b> nilai agar bisa dipakai di luar.</p>
+<p>Keyword untuk itu adalah <code>return</code>.</p>
+<ul><li><code>return</code> → kembalikan nilai ✅</li><li><code>console.log</code> → cuma print, tidak mengembalikan</li><li><code>print</code> → bukan JS (itu Python)</li></ul>` },
+  { code:'const arr = [1, 2, 3];\narr.___(x => x * 2);', options:['map','filter','push','pop'], a:0,
+    hint:`<p>Method array:</p>
+<ul>
+<li><code>.map()</code> → transformasi tiap item → return array baru ✅</li>
+<li><code>.filter()</code> → saring item sesuai kondisi</li>
+<li><code>.push()</code> → tambah item di akhir</li>
+<li><code>.pop()</code> → hapus item terakhir</li>
+</ul>
+<p>Karena kita ingin <b>mengubah</b> tiap item jadi ×2, pakai <code>map</code>.</p>` },
+  { code:'document.___("box");', options:['getElementById','getElementsByID','getElementByID','getById'], a:0,
+    hint:`<p>Method DOM yang benar: <code>getElementById</code>.</p>
+<p>Perhatikan huruf:</p>
+<ul>
+<li><code>getElementById</code> ✅ (E satu, d kecil)</li>
+<li><code>getElementsByID</code> ❌ (Elements plural, ID kapital)</li>
+<li><code>getElementByID</code> ❌ (ID kapital)</li>
+<li><code>getById</code> ❌ (bukan method standar)</li>
+</ul>` },
+  { code:'let x = 5;\n___ (x > 3) { console.log("Ya"); }', options:['if','for','while','when'], a:0,
+    hint:`<p>Keyword untuk <b>percabangan</b> (kondisi) di JS adalah <code>if</code>.</p>
+<ul><li><code>if</code> → kalau kondisi true, jalankan ✅</li><li><code>for</code> / <code>while</code> → loop</li><li><code>when</code> → bukan JS (itu Kotlin)</li></ul>` },
+];
+
+const unscrambleData = [
+  { code:'let x = 10;', tokens:['let','x','=','10;'],
+    hint:`<p>Pola deklarasi variabel:</p>
+<pre>keyword nama = nilai;</pre>
+<p><code>let</code> → <code>x</code> → <code>=</code> → <code>10;</code></p>` },
+  { code:'const nama = "Budi";', tokens:['const','nama','=','"Budi";'],
+    hint:`<p>Pola deklarasi const:</p>
+<pre>const nama = "Budi";</pre>
+<p>Urutan: keyword <code>const</code>, nama variabel, <code>=</code>, nilai string (pakai kutip).</p>` },
+  { code:'console.log("Hai");', tokens:['console.log','("Hai");'],
+    hint:`<p>Method <code>console.log</code> selalu dipasangkan dengan <code>(...);</code>.</p>
+<p>Jadi: <code>console.log("Hai");</code></p>` },
+  { code:'if (x > 5) {', tokens:['if','(x','>','5)','{'],
+    hint:`<p>Pola <code>if</code>:</p>
+<pre>if (kondisi) {</pre>
+<p>Urutan: <code>if</code> → <code>(x</code> → <code>&gt;</code> → <code>5)</code> → <code>{</code></p>` },
+  { code:'function tambah(a, b)', tokens:['function','tambah','(a,','b)'],
+    hint:`<p>Pola deklarasi function:</p>
+<pre>function nama(param1, param2)</pre>
+<p>Urutan: <code>function</code> → <code>tambah</code> → <code>(a,</code> → <code>b)</code></p>` },
+  { code:'return a + b;', tokens:['return','a','+','b;'],
+    hint:`<p>Return dari operasi:</p>
+<pre>return a + b;</pre>
+<p>Urutan: <code>return</code> → <code>a</code> → <code>+</code> → <code>b;</code></p>` },
+];
+
+const challengeData = [
+  { q:'Fungsi JS untuk menjumlahkan dua angka yang benar adalah...', options:['function tambah(a, b) { return a + b; }','function tambah(a, b) { a + b }','tambah(a, b) = a + b','function(a,b): a+b'], a:0,
+    hint:`<p>Function JS harus:</p>
+<ul>
+<li>Pakai keyword <code>function</code></li>
+<li>Ada nama & parameter <code>(a, b)</code></li>
+<li>Pakai <code>return</code> untuk mengembalikan hasil</li>
+<li>Dibungkus kurung kurawal <code>{ }</code></li>
+</ul>
+<p>Tanpa <code>return</code>, function tidak mengembalikan apa-apa (undefined).</p>` },
+  { q:'Cara mengubah warna teks semua <p> di CSS?', options:['p { color: red; }','p { background: red; }','<p color="red">','p.color = red'], a:0,
+    hint:`<p>Di CSS:</p>
+<ul>
+<li><code>color</code> → warna <b>teks</b> ✅</li>
+<li><code>background</code> → warna latar belakang</li>
+</ul>
+<p>Format: <code>selector { property: value; }</code></p>
+<p>Contoh: <code>p { color: red; }</code></p>` },
+  { q:'Cara membuat tombol yang menampilkan alert saat diklik?', options:['<button onclick="alert(\'Hai\')">Klik</button>','<btn alert="Hai">Klik</btn>','<button click="alert()">Klik</button>','<button on:click>Klik</button>'], a:0,
+    hint:`<p>Event handler di HTML pakai <code>on</code> + nama event:</p>
+<ul><li><code>onclick</code> → saat diklik</li><li><code>onmouseover</code> → saat mouse di atas</li><li><code>onchange</code> → saat nilai berubah</li></ul>
+<p>Contoh: <code>&lt;button onclick="alert('Hai')"&gt;Klik&lt;/button&gt;</code></p>` },
+  { q:'Loop untuk mencetak angka 0 sampai 4?', options:['for(let i=0;i<5;i++) console.log(i);','for(let i=0;i<=5;i++) console.log(i);','for(i=5;i>0;i--) console.log(i);','loop i from 0 to 4'], a:0,
+    hint:`<p>Untuk print 0, 1, 2, 3, 4 (5 angka):</p>
+<ul>
+<li>Mulai dari <code>i=0</code></li>
+<li>Kondisi: <code>i &lt; 5</code> (bukan <code>&lt;= 5</code>, kalau &lt;= akan sampai 5)</li>
+<li>Naik: <code>i++</code></li>
+</ul>
+<pre>for(let i=0; i&lt;5; i++) console.log(i);</pre>` },
+  { q:'Cara membuat komentar satu baris di JavaScript?', options:['// komentar','<!-- komentar -->','/* komentar */','# komentar'], a:0,
+    hint:`<p>Cara komentar di berbagai bahasa:</p>
+<ul>
+<li><b>JavaScript</b>: <code>// satu baris</code>, <code>/* multi baris */</code></li>
+<li><b>HTML</b>: <code>&lt;!-- komentar --&gt;</code></li>
+<li><b>CSS</b>: <code>/* komentar */</code></li>
+<li><b>Python</b>: <code># komentar</code></li>
+</ul>
+<p>Di JS → <code>//</code> untuk satu baris.</p>` },
+  { q:'Cara menambahkan class "aktif" ke elemen di JS?', options:['el.classList.add("aktif")','el.class.add("aktif")','el.addClass("aktif")','el.style.class = "aktif"'], a:0,
+    hint:`<p>Manipulasi class di JS modern pakai <code>classList</code>:</p>
+<pre>el.classList.add("aktif");     // tambah
+el.classList.remove("aktif");  // hapus
+el.classList.toggle("aktif");  // toggle</pre>
+<p>Bukan <code>class.add</code> (typo), bukan <code>addClass</code> (itu jQuery).</p>` },
+];
+
+/* ==================== MODE: SUSUN KODE ==================== */
+function gameBuilder(){
+  const task = pick(builderTasks);
+  const shuffled = shuffle([...task.lines]);
+  let answer = [];
+  el('game-body').innerHTML = `
+    <p style="color:#8b949e;font-size:.85rem;margin-bottom:12px">${escapeHtml(task.title)}</p>
+    ${renderHint(task.hint)}
+    <p style="font-size:.8rem;color:#8b949e;margin-bottom:6px">📥 Potongan kode (klik untuk memasukkan):</p>
+    <div class="pool" id="pool"></div>
+    <p style="font-size:.8rem;color:#8b949e;margin:12px 0 6px">📤 Jawaban kamu (klik untuk mengembalikan):</p>
+    <div class="answer" id="answer"></div>
+    <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn primary" id="btn-check">✓ Periksa</button>
+      <button class="btn ghost" id="btn-reset">↺ Ulangi</button>
+    </div>
+    <div id="fb"></div>
+  `;
+  function render(){
+    const p = el('pool'), a = el('answer');
+    p.innerHTML = ''; a.innerHTML = '';
+    shuffled.forEach((line, i) => {
+      if(answer.includes(i)) return;
+      const d = document.createElement('div'); d.className = 'code-line'; d.textContent = line;
+      d.onclick = () => { answer.push(i); render(); };
+      p.appendChild(d);
+    });
+    if(!p.children.length) p.innerHTML = '<div style="color:#484f58;font-size:.8rem;text-align:center;padding:8px">(kosong)</div>';
+    answer.forEach((idx, pos) => {
+      const d = document.createElement('div'); d.className = 'code-line'; d.textContent = shuffled[idx];
+      d.onclick = () => { answer.splice(pos,1); render(); };
+      a.appendChild(d);
+    });
+    if(!a.children.length) a.innerHTML = '<div style="color:#484f58;font-size:.8rem;text-align:center;padding:8px">Klik potongan kode di atas</div>';
+  }
+  render();
+  el('btn-reset').onclick = () => { answer = []; render(); el('fb').innerHTML=''; };
+  el('btn-check').onclick = () => {
+    const userLines = answer.map(i => shuffled[i]);
+    const ok = userLines.length === task.lines.length && userLines.every((l,i) => l === task.lines[i]);
+    const question = `Susun: ${task.title}`;
+    if(ok){
+      el('fb').innerHTML = funFeedback(true, 'builder', 'Benar! Susunan kode tepat. <b>+15 XP</b>');
+      recordAnswer('builder', true, question, 15);
+      addNextButton('builder');
+    } else {
+      el('fb').innerHTML = funFeedback(false, 'builder', 'Belum tepat nih. Buka 💡 Pembelajaran di atas kalau masih bingung.');
+      recordAnswer('builder', false, question, 0);
+    }
+  };
+}
+
+/* ==================== MODE: DEBUG HUNTER ==================== */
+function gameDebug(){
+  const task = pick(debugTasks);
+  el('game-body').innerHTML = `
+    <p style="color:#8b949e;font-size:.85rem;margin-bottom:12px">🐛 Ada <b>1 bug</b> di kode berikut. Klik baris yang salah!</p>
+    ${renderHint(task.hint)}
+    <div id="code-lines" style="display:flex;flex-direction:column;gap:4px"></div>
+    <div id="fb"></div>
+  `;
+  const container = el('code-lines');
+  let answered = false;
+  const question = `Debug: ${task.code.join(' | ')}`;
+  task.code.forEach((line, i) => {
+    const d = document.createElement('div');
+    d.className = 'code-line';
+    d.style.fontFamily = "'Consolas', monospace";
+    d.innerHTML = `<span style="color:#484f58;margin-right:10px">${i+1}</span>${escapeHtml(line)}`;
+    d.onclick = () => {
+      if(answered) return; answered = true;
+      container.querySelectorAll('.code-line').forEach(x => x.style.pointerEvents = 'none');
+      if(i === task.bug){
+        d.style.borderColor = '#238636'; d.style.background = 'rgba(35,134,54,.15)';
+        el('fb').innerHTML = funFeedback(true, 'debug', `Tepat! ${escapeHtml(task.explain)} <b>+15 XP</b>`);
+        recordAnswer('debug', true, question, 15);
+      } else {
+        d.style.borderColor = '#f85149'; d.style.background = 'rgba(248,81,73,.15)';
+        const correct = container.children[task.bug];
+        correct.style.borderColor = '#238636'; correct.style.background = 'rgba(35,134,54,.15)';
+        el('fb').innerHTML = funFeedback(false, 'debug', `Salah. Baris <b>${task.bug+1}</b> yang bermasalah. ${escapeHtml(task.explain)}`);
+        recordAnswer('debug', false, question, 0);
+      }
+      addNextButton('debug');
+    };
+    container.appendChild(d);
+  });
+}
+
+/* ==================== MODE: KUIS ==================== */
+function gameKuis(){
+  const q = pick(quizData);
+  const correctText = q.options[q.a];
+  const opts = shuffle([...q.options]);
+  el('game-body').innerHTML = `
+    <p style="font-size:1rem;margin-bottom:14px;font-weight:600;line-height:1.5">${escapeHtml(q.q)}</p>
+    ${renderHint(q.hint)}
+    <div class="choices" id="choices"></div>
+    <div id="fb"></div>
+  `;
+  const c = el('choices');
+  opts.forEach(opt => {
+    const b = document.createElement('button');
+    b.className = 'choice'; b.textContent = opt;
+    b.onclick = () => {
+      c.querySelectorAll('.choice').forEach(x => x.disabled = true);
+      const ok = opt === correctText;
+      b.classList.add(ok ? 'correct' : 'wrong');
+      if(!ok) [...c.children].forEach(x => { if(x.textContent === correctText) x.classList.add('correct'); });
+      if(ok){
+        el('fb').innerHTML = funFeedback(true, 'kuis', 'Benar! <b>+10 XP</b>');
+        recordAnswer('kuis', true, q.q, 10);
+      } else {
+        el('fb').innerHTML = funFeedback(false, 'kuis', `Salah. Jawaban benar: <b>${escapeHtml(correctText)}</b>`);
+        recordAnswer('kuis', false, q.q, 0);
+      }
+      addNextButton('kuis');
+    };
+    c.appendChild(b);
+  });
+}
+
+/* ==================== MODE: SPEED TYPING ==================== */
+function gameTyping(){
+  const task = pick(typingSnippets);
+  const target = task.code;
+  const startTime = Date.now();
+  el('game-body').innerHTML = `
+    <p style="color:#8b949e;font-size:.85rem;margin-bottom:10px">⌨️ Ketik ulang kode berikut secepat & seakurat mungkin:</p>
+    ${renderHint(task.hint)}
+    <div class="typing-target">${escapeHtml(target)}</div>
+    <textarea class="typing-input" id="type-input" placeholder="Ketik di sini..." spellcheck="false" autocomplete="off"></textarea>
+    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn primary" id="btn-submit-type">✓ Selesai</button>
+      <button class="btn ghost" id="btn-skip-type">↻ Ganti Soal</button>
+    </div>
+    <div id="fb"></div>
+  `;
+  el('type-input').focus();
+  el('btn-skip-type').onclick = () => gameTyping();
+  el('btn-submit-type').onclick = () => {
+    const val = el('type-input').value;
+    const elapsed = ((Date.now() - startTime)/1000).toFixed(1);
+    const ok = val === target;
+    const question = `Ketik: ${target}`;
+    if(ok){
+      const wpm = Math.max(1, Math.round((target.length/5) / (elapsed/60)));
+      el('fb').innerHTML = funFeedback(true, 'typing', `Tepat! Waktu: ${elapsed}s • ~${wpm} WPM. <b>+20 XP</b>`);
+      recordAnswer('typing', true, question, 20);
+    } else {
+      let match = 0;
+      const n = Math.min(val.length, target.length);
+      for(let i=0;i<n;i++) if(val[i] === target[i]) match++;
+      const pct = Math.round(match / Math.max(val.length, target.length, 1) * 100);
+      el('fb').innerHTML = funFeedback(false, 'typing', `Belum sama (${pct}% cocok).<br>Yang benar: <code>${escapeHtml(target)}</code>`);
+      recordAnswer('typing', false, question, 0);
+    }
+    addNextButton('typing');
+  };
+}
+
+/* ==================== MODE: TEBAK OUTPUT ==================== */
+function gameOutput(){
+  const q = pick(outputData);
+  const correctText = q.options[q.a];
+  const opts = shuffle([...q.options]);
+  el('game-body').innerHTML = `
+    <p style="color:#8b949e;font-size:.85rem;margin-bottom:10px">🔮 Apa output dari kode berikut?</p>
+    ${renderHint(q.hint)}
+    <pre class="code">${escapeHtml(q.code)}</pre>
+    <div class="choices" id="choices"></div>
+    <div id="fb"></div>
+  `;
+  const c = el('choices');
+  opts.forEach(opt => {
+    const b = document.createElement('button');
+    b.className = 'choice'; b.textContent = opt;
+    b.onclick = () => {
+      c.querySelectorAll('.choice').forEach(x => x.disabled = true);
+      const ok = opt === correctText;
+      b.classList.add(ok ? 'correct' : 'wrong');
+      if(!ok) [...c.children].forEach(x => { if(x.textContent === correctText) x.classList.add('correct'); });
+      const question = `Output dari: ${q.code.replace(/\n/g, ' ')}`;
+      if(ok){
+        el('fb').innerHTML = funFeedback(true, 'output', 'Benar! <b>+12 XP</b>');
+        recordAnswer('output', true, question, 12);
+      } else {
+        el('fb').innerHTML = funFeedback(false, 'output', `Salah. Output benar: <b>${escapeHtml(correctText)}</b>`);
+        recordAnswer('output', false, question, 0);
+      }
+      addNextButton('output');
+    };
+    c.appendChild(b);
+  });
+}
+
+/* ==================== MODE: MEMORY SYNTAX ==================== */
+function gameMemory(){
+  const pairs = shuffle([...memoryPairsData]).slice(0, 6);
+  const cards = [];
+  pairs.forEach((p, i) => { cards.push({ id:i, text:p[0], type:'code' }); cards.push({ id:i, text:p[1], type:'desc' }); });
+  shuffle(cards);
+  let flipped = [], matched = 0, tries = 0, locked = false;
+  el('game-body').innerHTML = `
+    <p style="color:#8b949e;font-size:.85rem;margin-bottom:12px">🧠 Jodohkan tag/syntax dengan fungsinya. Klik 2 kartu untuk mencocokkan.</p>
+    ${renderHint(memoryHint)}
+    <div class="memory-grid" id="mem-grid"></div>
+    <div id="fb" style="text-align:center;margin-top:12px"></div>
+  `;
+  const grid = el('mem-grid');
+  cards.forEach(card => {
+    const d = document.createElement('div');
+    d.className = 'mem-card'; d.textContent = card.text;
+    d.onclick = () => {
+      if(locked || d.classList.contains('flipped') || d.classList.contains('matched')) return;
+      d.classList.add('flipped'); flipped.push({ el:d, card });
+      if(flipped.length === 2){
+        locked = true; tries++;
+        const [a, b] = flipped;
+        if(a.card.id === b.card.id && a.card.type !== b.card.type){
+          a.el.classList.add('matched'); b.el.classList.add('matched');
+          matched++; flipped = []; locked = false;
+          if(matched === pairs.length){
+            el('fb').innerHTML = funFeedback(true, 'memory', `Semua cocok! Selesai dalam ${tries} percobaan. <b>+30 XP</b>`);
+            recordAnswer('memory', true, `Memory Syntax - selesai dalam ${tries} percobaan`, 30);
+            addNextButton('memory');
+          }
+        } else {
+          setTimeout(() => { a.el.classList.remove('flipped'); b.el.classList.remove('flipped'); flipped = []; locked = false; }, 700);
+        }
+      }
+    };
+    grid.appendChild(d);
+  });
+}
+
+/* ==================== MODE: BOSS BATTLE ==================== */
+function gameBoss(){
+  let bossHP = 100;
+  let playerHP = 3;
+  function askQuestion(){
+    const pool = [
+      ...quizData.map(x => ({ q: x.q, options: x.options, a: x.a, hint: x.hint })),
+      ...outputData.map(o => ({ q: 'Output dari kode berikut:\n\n' + o.code, options: o.options, a: o.a, hint: o.hint }))
+    ];
+    const q = pick(pool);
+    const correctText = q.options[q.a];
+    const opts = shuffle([...q.options]);
+    el('game-body').innerHTML = `
+      <div class="boss-area">
+        <div class="boss">${bossHP > 50 ? '👹' : bossHP > 20 ? '😡' : '🤕'}</div>
+        <div style="font-size:.8rem;color:#8b949e">Boss HP</div>
+        <div class="hp-bar"><div class="hp-fill" style="width:${bossHP}%"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:.8rem;color:#8b949e">
+          <span>❤️ Nyawa kamu: ${'❤'.repeat(Math.max(playerHP,0))}</span>
+          <span>Boss: ${bossHP}/100</span>
+        </div>
+      </div>
+      <p style="font-size:.95rem;font-weight:600;margin-bottom:12px;white-space:pre-wrap;line-height:1.5">${escapeHtml(q.q)}</p>
+      ${renderHint(q.hint, 'Minta bantuan? (Boss bakal ngamuk 😈)')}
+      <div class="choices" id="choices"></div>
+      <div id="fb"></div>
+    `;
+    const c = el('choices');
+    const question = `[Boss] ${q.q}`;
+    opts.forEach(opt => {
+      const b = document.createElement('button');
+      b.className = 'choice'; b.textContent = opt;
+      b.onclick = () => {
+        c.querySelectorAll('.choice').forEach(x => x.disabled = true);
+        const ok = opt === correctText;
+        b.classList.add(ok ? 'correct' : 'wrong');
+        if(!ok) [...c.children].forEach(x => { if(x.textContent === correctText) x.classList.add('correct'); });
+        if(ok){
+          bossHP -= 20;
+          if(bossHP <= 0){
+            el('fb').innerHTML = funFeedback(true, 'boss', `Boss tumbang! <b>+50 XP bonus!</b> Kamu jago 💪`);
+            recordAnswer('boss', true, question + ' — BOSS DIKALAHKAN!', 65);
+            addNextButton('boss');
+            return;
+          }
+          el('fb').innerHTML = funFeedback(true, 'boss', `⚔️ HIT! Boss -20 HP. <b>+15 XP</b>`);
+          recordAnswer('boss', true, question, 15);
+        } else {
+          playerHP--;
+          if(playerHP <= 0){
+            el('fb').innerHTML = funFeedback(false, 'boss', `Kamu tumbang! Boss HP tersisa: ${bossHP}. Coba lagi ya`);
+            recordAnswer('boss', false, question, 0);
+            addNextButton('boss');
+            return;
+          }
+          el('fb').innerHTML = funFeedback(false, 'boss', `💥 Boss nyerang! Nyawa -1.<br>Jawaban benar: <b>${escapeHtml(correctText)}</b>`);
+          recordAnswer('boss', false, question, 0);
+        }
+        const btn = document.createElement('button');
+        btn.className = 'btn primary';
+        btn.style.marginTop = '12px';
+        btn.textContent = pick(['Lanjut serang ⚔️','Gas terus ⚔️','Serang lagi! ⚔️']);
+        btn.onclick = askQuestion;
+        el('fb').appendChild(btn);
+      };
+      c.appendChild(b);
+    });
+  }
+  askQuestion();
+}
+
+/* ==================== MODE: CODE PUZZLE ==================== */
+function gamePuzzle(){
+  const q = pick(puzzleData);
+  const correctText = q.options[q.a];
+  const opts = shuffle([...q.options]);
+  el('game-body').innerHTML = `
+    <p style="color:#8b949e;font-size:.85rem;margin-bottom:10px">🔗 Isi bagian kosong (___) dengan pilihan yang benar:</p>
+    ${renderHint(q.hint)}
+    <pre class="code">${escapeHtml(q.code)}</pre>
+    <div class="choices" id="choices"></div>
+    <div id="fb"></div>
+  `;
+  const c = el('choices');
+  opts.forEach(opt => {
+    const b = document.createElement('button');
+    b.className = 'choice'; b.textContent = opt;
+    b.style.fontFamily = "'Consolas', monospace";
+    b.onclick = () => {
+      c.querySelectorAll('.choice').forEach(x => x.disabled = true);
+      const ok = opt === correctText;
+      b.classList.add(ok ? 'correct' : 'wrong');
+      if(!ok) [...c.children].forEach(x => { if(x.textContent === correctText) x.classList.add('correct'); });
+      const question = `Puzzle: ${q.code.replace(/\n/g, ' ')}`;
+      if(ok){
+        el('fb').innerHTML = funFeedback(true, 'puzzle', 'Benar! <b>+12 XP</b>');
+        recordAnswer('puzzle', true, question, 12);
+      } else {
+        el('fb').innerHTML = funFeedback(false, 'puzzle', `Salah. Jawaban benar: <b>${escapeHtml(correctText)}</b>`);
+        recordAnswer('puzzle', false, question, 0);
+      }
+      addNextButton('puzzle');
+    };
+    c.appendChild(b);
+  });
+}
+
+/* ==================== MODE: UNSCRAMBLE ==================== */
+function gameUnscramble(){
+  const task = pick(unscrambleData);
+  const pool = shuffle([...task.tokens]);
+  let answer = [];
+  el('game-body').innerHTML = `
+    <p style="color:#8b949e;font-size:.85rem;margin-bottom:12px">📦 Susun token acak berikut menjadi kode yang benar.</p>
+    ${renderHint(task.hint)}
+    <div style="font-size:.8rem;color:#8b949e;margin-bottom:6px">🎯 Jawaban kamu (klik untuk membatalkan):</div>
+    <div class="answer" id="answer" style="flex-direction:row;flex-wrap:wrap;min-height:50px;margin-bottom:12px"></div>
+    <div style="font-size:.8rem;color:#8b949e;margin-bottom:6px">📥 Token tersedia:</div>
+    <div class="pool" id="pool" style="flex-direction:row;flex-wrap:wrap"></div>
+    <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn primary" id="btn-check">✓ Periksa</button>
+      <button class="btn ghost" id="btn-reset">↺ Ulangi</button>
+    </div>
+    <div id="fb"></div>
+  `;
+  function render(){
+    const p = el('pool'), a = el('answer');
+    p.innerHTML = ''; a.innerHTML = '';
+    pool.forEach((tok, i) => {
+      if(answer.includes(i)) return;
+      const d = document.createElement('div'); d.className = 'token'; d.textContent = tok;
+      d.onclick = () => { answer.push(i); render(); };
+      p.appendChild(d);
+    });
+    if(!p.children.length) p.innerHTML = '<span style="color:#484f58;font-size:.8rem">(kosong)</span>';
+    answer.forEach((idx, pos) => {
+      const d = document.createElement('div'); d.className = 'token'; d.textContent = pool[idx];
+      d.onclick = () => { answer.splice(pos,1); render(); };
+      a.appendChild(d);
+    });
+    if(!a.children.length) a.innerHTML = '<span style="color:#484f58;font-size:.8rem">Klik token di bawah untuk menyusun kode</span>';
+  }
+  render();
+  el('btn-reset').onclick = () => { answer = []; render(); el('fb').innerHTML=''; };
+  el('btn-check').onclick = () => {
+    const userCode = answer.map(i => pool[i]).join(' ');
+    const question = `Unscramble: ${task.tokens.join(' ')}`;
+    if(userCode === task.code){
+      el('fb').innerHTML = funFeedback(true, 'unscramble', 'Benar! <b>+15 XP</b>');
+      recordAnswer('unscramble', true, question, 15);
+    } else {
+      el('fb').innerHTML = funFeedback(false, 'unscramble', `Belum tepat.<br>Kode benar: <code>${escapeHtml(task.code)}</code>`);
+      recordAnswer('unscramble', false, question, 0);
+    }
+    addNextButton('unscramble');
+  };
+}
+
+/* ==================== MODE: MINI CHALLENGE ==================== */
+function gameChallenge(){
+  const q = pick(challengeData);
+  const correctText = q.options[q.a];
+  const opts = shuffle([...q.options]);
+  el('game-body').innerHTML = `
+    <p style="color:#8b949e;font-size:.85rem;margin-bottom:10px">🎯 Tantangan: pilih jawaban yang paling tepat</p>
+    ${renderHint(q.hint)}
+    <p style="font-size:1rem;margin-bottom:14px;font-weight:600;line-height:1.5">${escapeHtml(q.q)}</p>
+    <div class="choices" id="choices"></div>
+    <div id="fb"></div>
+  `;
+  const c = el('choices');
+  opts.forEach(opt => {
+    const b = document.createElement('button');
+    b.className = 'choice'; b.textContent = opt;
+    b.style.fontFamily = "'Consolas', monospace";
+    b.onclick = () => {
+      c.querySelectorAll('.choice').forEach(x => x.disabled = true);
+      const ok = opt === correctText;
+      b.classList.add(ok ? 'correct' : 'wrong');
+      if(!ok) [...c.children].forEach(x => { if(x.textContent === correctText) x.classList.add('correct'); });
+      if(ok){
+        el('fb').innerHTML = funFeedback(true, 'challenge', 'Tepat! <b>+15 XP</b>');
+        recordAnswer('challenge', true, q.q, 15);
+      } else {
+        el('fb').innerHTML = funFeedback(false, 'challenge', `Salah. Jawaban benar:<br><code>${escapeHtml(correctText)}</code>`);
+        recordAnswer('challenge', false, q.q, 0);
+      }
+      addNextButton('challenge');
+    };
+    c.appendChild(b);
+  });
+}
+
+/* ==================== NAVIGASI ==================== */
+function switchPage(page){
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.page === page));
+  document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + page));
+  if(page !== 'home'){
+    el('game-card').classList.add('hidden');
+    el('menu-card').classList.remove('hidden');
+  }
+  if(page === 'profile') renderStats();
+  if(page === 'history') renderHistory();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ==================== FOTO PROFIL ==================== */
+function handlePhotoUpload(e){
+  const file = e.target.files && e.target.files[0];
+  if(!file) return;
+  if(!file.type.startsWith('image/')){ showToast('❌ File harus gambar ya!'); return; }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      const max = 300;
+      let { width, height } = img;
+      if(width > height && width > max){ height = height * max / width; width = max; }
+      else if(height > max){ width = width * max / height; height = max; }
+      const canvas = document.createElement('canvas');
+      canvas.width = width; canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      state.user.photo = canvas.toDataURL('image/jpeg', 0.8);
+      save(); renderProfile();
+      showToast('✅ Foto profil tersimpan!');
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+}
+
+/* ==================== INIT ==================== */
+function init(){
+  load();
+  el('inp-nama').value = state.user.nama || '';
+  el('inp-nim').value = state.user.nim || '';
+  el('inp-jurusan').value = state.user.jurusan || '';
+
+  el('btn-save').onclick = () => {
+    state.user.nama = el('inp-nama').value.trim();
+    state.user.nim = el('inp-nim').value.trim();
+    state.user.jurusan = el('inp-jurusan').value.trim();
+    save(); renderStats();
+    el('profile-msg').textContent = `✓ Sip, ${state.user.nama || 'bro'}! Profil tersimpan. Semangat ngodingnya! 🔥`;
+    setTimeout(()=>el('profile-msg').textContent='', 3000);
+  };
+
+  el('btn-remove-photo').onclick = () => {
+    if(!state.user.photo){ showToast('Belum ada foto yang diupload'); return; }
+    state.user.photo = ''; save(); renderProfile();
+    showToast('🗑️ Foto profil dihapus');
+  };
+
+  el('photo-input').onchange = handlePhotoUpload;
+  el('btn-back').onclick = backToMenu;
+
+  el('btn-clear-history').onclick = () => {
+    if(!state.history.length){ showToast('Riwayat masih kosong'); return; }
+    if(confirm('Yakin mau hapus semua riwayat? Tidak bisa dikembalikan lho.')){
+      state.history = []; save(); renderHistory(); updateHistBadge();
+      showToast('🗑️ Riwayat dibersihkan');
+    }
+  };
+
+  document.querySelectorAll('.nav-btn').forEach(b => b.onclick = () => switchPage(b.dataset.page));
+  document.querySelectorAll('#history-filter .chip').forEach(chip => {
+    chip.onclick = () => {
+      document.querySelectorAll('#history-filter .chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      historyFilter = chip.dataset.filter;
+      renderHistory();
+    };
+  });
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.onclick = () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      renderMateri(tab.dataset.tab);
+    };
+  });
+
+  renderStats(); renderMenu(); renderMateri('html'); renderHistory(); updateHistBadge();
+}
+init();
+</script>
+</body>
+</html>
